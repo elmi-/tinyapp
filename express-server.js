@@ -4,9 +4,11 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = 8080;
 
+// MIDDLEWARE //
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// TEMP DATABASE //
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
@@ -22,6 +24,7 @@ const generateRandomString = () => {
   return randomStr;
 };
 
+// GET: index.ejs
 app.get('/', (req, res) => {
   res.send('Hello there!');
   console.log(generateRandomString());
@@ -48,7 +51,6 @@ app.get('/urls/new', (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
-  console.log(longURL);
   res.redirect(longURL);
 });
 
@@ -56,7 +58,6 @@ app.get('/urls/:shortURL', (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render('urls_show', templateVars);
 });
-
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}`);
