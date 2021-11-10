@@ -24,7 +24,8 @@ const generateRandomString = () => {
   return randomStr;
 };
 
-// GET: index.ejs
+// RENDER index page
+// GET: /
 app.get('/', (req, res) => {
   res.send('Hello there!');
   console.log(generateRandomString());
@@ -34,17 +35,23 @@ app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
 
+// view all urls from urlDatabase
+// GET /urls 
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
 
+// add a new URL and redirect to new URL (/urls/generateRandomString())
+// POST /urls
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
+// renders page for adding new URL
+// GET /urls/new
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
