@@ -28,7 +28,12 @@ const users = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
-  }
+  },
+  "asdf": {
+    id: "asdf", 
+    email: "a@a.a", 
+    password: "a"
+  },
 }
 
 const generateRandomString = () => {
@@ -55,24 +60,32 @@ app.get("/urls.json", (req, res) => {
 // GET /urls
 app.get("/urls", (req, res) => {
   const userID = req.cookies["userID"];
+  const user = findUserByID(userID, users);
+  // console.log(user);
   const templateVars = {
     urls: urlDatabase,
-    user: users[userID],
+    user: user,
   };
 
   res.render("urls_index", templateVars);
 });
 
+app.get("/login", (req, res) => {
+  res.render("login", { error: null });
+});
+
 // POST: login and save username as a cookie
 app.post("/login", (req, res) => {
-  const userID = req.body.userID;
-  res.cookie("userID", userID);
+  // console.log(req.body);
+  const userID = req.body.email;
+  const user = findUserByEmail(userID, users);
+  res.cookie("userID", user.id);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
   res.clearCookie("userID");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 // add a new URL and redirect to new URL (/urls/generateRandomString())
@@ -85,17 +98,25 @@ app.post("/urls", (req, res) => {
 
 // GET /register: registration form to add new users
 app.get("/register", (req, res) => {
-  res.render("register", { error: false });
+  res.render("register", { error: null });
 });
 
-const userLookupHelper = (email, obj) => {
-  let found = false;
+const findUserByID = (id, obj) => {
   for (const key of Object.keys(obj)) {
-    if(email === obj[key].email) {
-      found = true;
+    if(id === key) {
+      return obj[key];
     }
   }
-  return found;
+  return false;
+};
+
+const findUserByEmail = (email, obj) => {
+  for (const key of Object.keys(obj)) {
+    if(email === obj[key].email) {
+      return obj[key];
+    }
+  }
+  return false;
 };
 
 // POST /register: save users to users data store
@@ -107,7 +128,8 @@ app.post("/register", (req, res) => {
     return;
   }
 
-  const userFound = userLookupHelper(email, users);
+  const userFound = findUserByEmail(email, users);
+
   if(userFound) {
     res.status(400);
     res.render("register", { error: "Email already registered! Try restting password" }); 
@@ -115,22 +137,25 @@ app.post("/register", (req, res) => {
   }
 
   const userID = generateRandomString();
+  
   users[userID] = {
     id: userID,
     email: email,
     password: password,
   };
+  
   res.cookie("userID", userID);
-  return res.redirect("/urls");
+  return res.redirect("urls");
 });
 
 // renders page for adding new URL
 // GET /urls/new
 app.get("/urls/new", (req, res) => {
   const userID = req.cookies["userID"];
+  const user = findUserByID(userID, users);
   const templateVars = {
     urls: urlDatabase,
-    user: users[userID],
+    user: user,
   };
   res.render("urls_new", templateVars);
 });
@@ -145,9 +170,10 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   const userID = req.cookies["userID"];
+  const user = findUserByID(userID, users);
   const templateVars = {
     urls: urlDatabase,
-    user: users[userID],
+    user: user,
   };
   res.render("urls_index", templateVars);
 });
@@ -158,19 +184,21 @@ app.post("/urls/:shortURL", (req, res) => {
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
   const userID = req.cookies["userID"];
+  const user = findUserByID(userID, users);
   const templateVars = {
     urls: urlDatabase,
-    user: users[userID],
+    user: user,
   };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.cookies["userID"];
+  const user = findUserByID(userID, users);
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    user: users[userID],
+    user: user
   };
 
   res.render("urls_show", templateVars);
@@ -178,4 +206,5 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}`);
+  console.log(users)
 });
