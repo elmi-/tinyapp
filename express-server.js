@@ -59,19 +59,19 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user: users[userID],
   };
-  console.log(templateVars)
+
   res.render("urls_index", templateVars);
 });
 
 // POST: login and save username as a cookie
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
+  const userID = req.body.userID;
+  res.cookie("userID", userID);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("userID");
   res.redirect("/urls");
 });
 
@@ -85,12 +85,35 @@ app.post("/urls", (req, res) => {
 
 // GET /register: registration form to add new users
 app.get("/register", (req, res) => {
-  res.render("register");
+  res.render("register", { error: false });
 });
+
+const userLookupHelper = (email, obj) => {
+  let found = false;
+  for (const key of Object.keys(obj)) {
+    if(email === obj[key].email) {
+      found = true;
+    }
+  }
+  return found;
+};
 
 // POST /register: save users to users data store
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
+  if(email === "" || password === "") {
+    res.status(400);
+    res.render("register", { error: "Email and Password cannot be empty!" }); 
+    return;
+  }
+
+  const userFound = userLookupHelper(email, users);
+  if(userFound) {
+    res.status(400);
+    res.render("register", { error: "Email already registered! Try restting password" }); 
+    return;
+  }
+
   const userID = generateRandomString();
   users[userID] = {
     id: userID,
@@ -98,8 +121,7 @@ app.post("/register", (req, res) => {
     password: password,
   };
   res.cookie("userID", userID);
-  res.redirect("/urls");
-  console.log(users);
+  return res.redirect("/urls");
 });
 
 // renders page for adding new URL
@@ -150,7 +172,6 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.shortURL],
     user: users[userID],
   };
-
 
   res.render("urls_show", templateVars);
 });
