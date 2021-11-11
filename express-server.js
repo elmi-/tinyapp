@@ -35,7 +35,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 // view all urls from urlDatabase
-// GET /urls 
+// GET /urls
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
@@ -55,15 +55,25 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+// GET: redirect user to longURL
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
+// POST: delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+// POST: edit shortURL
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
