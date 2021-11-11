@@ -5,12 +5,13 @@ const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080;
 
-// MIDDLEWARE //
+// #region MIDDLEWARE 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+// #endregion
 
-// TEMP DATABASE //
+// #region TEMP DATABASE (urlDatabase, users) //
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -35,6 +36,7 @@ const users = {
     password: "a"
   },
 }
+// #endregion
 
 const generateRandomString = () => {
   const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -77,6 +79,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = findUserByEmail(email, users);
+
   if (!user) {
     res.status(403);
     console.log("email not found")
@@ -92,7 +95,7 @@ app.post("/login", (req, res) => {
   }
 
   res.cookie("userID", user.id);
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
@@ -218,5 +221,5 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}`);
-  // console.log(users)
+  console.log(users)
 });
