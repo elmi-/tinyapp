@@ -38,6 +38,25 @@ const users = {
 }
 // #endregion
 
+// #region HELPER METHODS
+const findUserByID = (id, obj) => {
+  for (const key of Object.keys(obj)) {
+    if(id === key) {
+      return obj[key];
+    }
+  }
+  return false;
+};
+
+const findUserByEmail = (email, obj) => {
+  for (const key of Object.keys(obj)) {
+    if(email === obj[key].email) {
+      return obj[key];
+    }
+  }
+  return false;
+};
+
 const generateRandomString = () => {
   const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let randomStr = "";
@@ -47,6 +66,7 @@ const generateRandomString = () => {
   }
   return randomStr;
 };
+// #endregion 
 
 // RENDER index page
 // GET: /
@@ -58,19 +78,7 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// view all urls from urlDatabase
-// GET /urls
-app.get("/urls", (req, res) => {
-  const userID = req.cookies["userID"];
-  const user = findUserByID(userID, users);
-  const templateVars = {
-    urls: urlDatabase,
-    user: user,
-  };
-
-  res.render("urls_index", templateVars);
-});
-
+// #region -------------- LOGIN/LOGOUT/REGISTRATION --------------//
 app.get("/login", (req, res) => {
   res.render("login", { error: null });
 });
@@ -103,36 +111,10 @@ app.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-// add a new URL and redirect to new URL (/urls/generateRandomString())
-// POST /urls
-app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
-});
-
 // GET /register: registration form to add new users
 app.get("/register", (req, res) => {
   res.render("register", { error: null });
 });
-
-const findUserByID = (id, obj) => {
-  for (const key of Object.keys(obj)) {
-    if(id === key) {
-      return obj[key];
-    }
-  }
-  return false;
-};
-
-const findUserByEmail = (email, obj) => {
-  for (const key of Object.keys(obj)) {
-    if(email === obj[key].email) {
-      return obj[key];
-    }
-  }
-  return false;
-};
 
 // POST /register: save users to users data store
 app.post("/register", (req, res) => {
@@ -162,16 +144,49 @@ app.post("/register", (req, res) => {
   res.cookie("userID", userID);
   return res.redirect("urls");
 });
+// #endregion
+
+// view all urls from urlDatabase
+// GET /urls
+app.get("/urls", (req, res) => {
+  const userID = req.cookies["userID"];
+  const user = findUserByID(userID, users);
+  
+  const templateVars = {
+    urls: urlDatabase,
+    user: user,
+  };
+
+  res.render("urls_index", templateVars);
+});
+
+// add a new URL and redirect to newly created shortLink
+// POST /urls
+app.post("/urls", (req, res) => {
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  const userID = req.cookies["userID"];
+  const user = findUserByID(userID, users);
+
+  const templateVars = {
+    urls: urlDatabase,
+    user: user,
+  };
+
+  return res.render("urls_index", templateVars);
+});
 
 // renders page for adding new URL
 // GET /urls/new
 app.get("/urls/new", (req, res) => {
   const userID = req.cookies["userID"];
   const user = findUserByID(userID, users);
+
   const templateVars = {
     urls: urlDatabase,
     user: user,
   };
+  
   res.render("urls_new", templateVars);
 });
 
@@ -184,12 +199,15 @@ app.get("/u/:shortURL", (req, res) => {
 // POST: delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
+
   const userID = req.cookies["userID"];
   const user = findUserByID(userID, users);
+
   const templateVars = {
     urls: urlDatabase,
     user: user,
   };
+
   res.render("urls_index", templateVars);
 });
 
@@ -199,11 +217,14 @@ app.post("/urls/:shortURL", (req, res) => {
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
   const userID = req.cookies["userID"];
+
   const user = findUserByID(userID, users);
+  
   const templateVars = {
     urls: urlDatabase,
     user: user,
   };
+
   res.render("urls_index", templateVars);
 });
 
