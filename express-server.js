@@ -28,7 +28,6 @@ const generateRandomString = () => {
 // GET: /
 app.get('/', (req, res) => {
   res.send('Hello there!');
-  console.log(generateRandomString());
 });
 
 app.get('/urls.json', (req, res) => {
