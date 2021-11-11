@@ -201,10 +201,14 @@ app.get("/urls", (req, res) => {
 // POST /urls
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
   const userID = req.cookies["userID"];
   const user = findUserByID(userID, users);
-
+  
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userID: userID,
+  }
+  
   const templateVars = {
     urls: getUserURLS(userID, urlDatabase),
     user: user,
@@ -286,5 +290,5 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}`);
-  // console.log(users)
+  console.log(urlDatabase)
 });
