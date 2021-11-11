@@ -61,7 +61,6 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const userID = req.cookies["userID"];
   const user = findUserByID(userID, users);
-  // console.log(user);
   const templateVars = {
     urls: urlDatabase,
     user: user,
@@ -76,9 +75,22 @@ app.get("/login", (req, res) => {
 
 // POST: login and save username as a cookie
 app.post("/login", (req, res) => {
-  // console.log(req.body);
-  const userID = req.body.email;
-  const user = findUserByEmail(userID, users);
+  const { email, password } = req.body;
+  const user = findUserByEmail(email, users);
+  if (!user) {
+    res.status(403);
+    console.log("email not found")
+    res.render("login", { error: "Invalid email/password, please try again" }); 
+    return;
+  }
+  
+  if (password !== user.password) {
+    res.status(403);
+    console.log("wrong password");
+    res.render("login", { error: "Invalid email/password, please try again" });
+    return;
+  }
+
   res.cookie("userID", user.id);
   res.redirect("/urls");
 });
@@ -206,5 +218,5 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}`);
-  console.log(users)
+  // console.log(users)
 });
