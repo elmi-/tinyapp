@@ -13,8 +13,22 @@ app.use(cookieParser());
 
 // #region TEMP DATABASE (urlDatabase, users) //
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "asdf",
+  }, 
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "asdf",
+  },
+  "b00Vn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "userRandomID",
+  }, 
+  "99i9Ux": {
+    longURL: "http://www.google.com",
+    userID: "user2RandomID",
+  },
 };
 
 // users data store 
@@ -66,6 +80,25 @@ const generateRandomString = () => {
   }
   return randomStr;
 };
+
+const getUserURLS = (userID, urls) => {
+  let userObj = [];
+  for (const key of Object.keys(urls)) {
+    if(userID === urls[key].userID) {
+      urls[key]["shortLink"] = key;
+      userObj.push(urls[key]);
+    }
+  }
+  return userObj;
+};
+
+const getSingleUserURL = (shortLink, urlDatabase) => {
+  for (const url of urlDatabase) {
+    if (url.shortLink === shortLink) {
+      return url;
+    }
+  }
+}
 // #endregion 
 
 // RENDER index page
@@ -156,13 +189,14 @@ app.get("/urls", (req, res) => {
   const user = findUserByID(userID, users);
   
   const templateVars = {
-    urls: urlDatabase,
+    urls: getUserURLS(userID, urlDatabase),
     user: user,
   };
-
+  // console.log(getUserURLS(userID, urlDatabase))
   res.render("urls_index", templateVars);
 });
 
+// TODO: edit and fix issue
 // add a new URL and redirect to newly created shortLink
 // POST /urls
 app.post("/urls", (req, res) => {
@@ -172,7 +206,7 @@ app.post("/urls", (req, res) => {
   const user = findUserByID(userID, users);
 
   const templateVars = {
-    urls: urlDatabase,
+    urls: getUserURLS(userID, urlDatabase),
     user: user,
   };
 
@@ -191,7 +225,7 @@ app.get("/urls/new", (req, res) => {
   const user = findUserByID(userID, users);
 
   const templateVars = {
-    urls: urlDatabase,
+    urls: getUserURLS(userID, urlDatabase),
     user: user,
   };
   
@@ -200,7 +234,7 @@ app.get("/urls/new", (req, res) => {
 
 // GET: redirect user to longURL
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL =  urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -212,7 +246,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const user = findUserByID(userID, users);
 
   const templateVars = {
-    urls: urlDatabase,
+    urls: getUserURLS(userID, urlDatabase),
     user: user,
   };
 
@@ -223,13 +257,13 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL].longURL = longURL;
   const userID = req.cookies["userID"];
 
   const user = findUserByID(userID, users);
   
   const templateVars = {
-    urls: urlDatabase,
+    urls: getUserURLS(userID, urlDatabase),
     user: user,
   };
 
@@ -239,16 +273,18 @@ app.post("/urls/:shortURL", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.cookies["userID"];
   const user = findUserByID(userID, users);
+  const shortLink = req.params.shortURL;
+
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    url: getSingleUserURL(shortLink, getUserURLS(userID, urlDatabase)),
     user: user
   };
-
+  
   res.render("urls_show", templateVars);
 });
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}`);
-  console.log(users)
+  // console.log(users)
 });
