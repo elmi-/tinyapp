@@ -87,7 +87,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = findUserByEmail(email, users);
-
+  
   if (!user) {
     res.status(403);
     console.log("email not found")
@@ -101,8 +101,11 @@ app.post("/login", (req, res) => {
     res.render("login", { error: "Invalid email/password, please try again" });
     return;
   }
-
+  
   res.cookie("userID", user.id);
+  if (req.get('Referrer') === "http://localhost:8080/urls/new") {
+    return res.redirect("/urls/new")
+  }
   return res.redirect("/urls");
 });
 
@@ -180,6 +183,11 @@ app.post("/urls", (req, res) => {
 // GET /urls/new
 app.get("/urls/new", (req, res) => {
   const userID = req.cookies["userID"];
+  if (!userID) {
+    res.status(401);
+    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" }); 
+    return;
+  }
   const user = findUserByID(userID, users);
 
   const templateVars = {
