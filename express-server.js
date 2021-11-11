@@ -192,7 +192,7 @@ app.get("/urls", (req, res) => {
     urls: getUserURLS(userID, urlDatabase),
     user: user,
   };
-  // console.log(getUserURLS(userID, urlDatabase))
+  
   res.render("urls_index", templateVars);
 });
 
@@ -208,7 +208,7 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userID: userID,
   }
-  
+
   const templateVars = {
     urls: getUserURLS(userID, urlDatabase),
     user: user,
@@ -231,6 +231,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     urls: getUserURLS(userID, urlDatabase),
     user: user,
+    error: null,
   };
   
   res.render("urls_new", templateVars);
@@ -238,6 +239,20 @@ app.get("/urls/new", (req, res) => {
 
 // GET: redirect user to longURL
 app.get("/u/:shortURL", (req, res) => {
+  const userID = req.cookies["userID"];
+  const user = findUserByID(userID, users);
+
+  const templateVars = {
+    urls: getUserURLS(userID, urlDatabase),
+    user: user,
+    error: "short URL could not be found, please create a new link"
+  };
+  
+  if (urlDatabase[req.params.shortURL] === undefined) {
+    res.status(400);
+    res.render("urls_new", templateVars);
+  }
+
   const longURL =  urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
@@ -290,5 +305,5 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}`);
-  console.log(urlDatabase)
+  // console.log(urlDatabase)
 });

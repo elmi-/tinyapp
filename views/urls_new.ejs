@@ -11,11 +11,12 @@
   </head>
 
   <body>
-
     <%- include('partials/_header') %>
-
     <main style="margin: 1em;">
       <h3>Create TinyURL</h3>
+      <% if (error) { %>
+        <%- include('partials/_error') %>
+      <% } %>
       <form class="form-inline" action="/urls" method="POST">
         <div class="form-group mb-2">
           <label for="longURL">Enter a URL:</label>
