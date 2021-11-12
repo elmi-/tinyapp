@@ -72,28 +72,8 @@ const findURLS = (userID) => {
       results[shortURL].shortURL = shortURL;
     }
   }
-
+  // console.log("findURLS", results)
   return results;
-};
-
-const getUserURLS = (userID, urls) => {
-  let userObj = [];
-  for (const key of Object.keys(urls)) {
-    if (userID === urls[key].userID) {
-      urls[key]["shortLink"] = key;
-      userObj.push(urls[key]);
-    }
-  }
-  
-  return userObj;
-};
-
-const getSingleUserURL = (shortLink, urlDatabase) => {
-  for (const url of Object.values(urlDatabase)) {
-    if (url.shortLink === shortLink) {
-      return url;
-    }
-  }
 };
 
 module.exports = {
@@ -102,6 +82,4 @@ module.exports = {
   generateRandomString,
   findUser,
   findURLS,
-  getUserURLS,
-  getSingleUserURL,
 };

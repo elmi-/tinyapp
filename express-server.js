@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
 
-const { users, urlDatabase, generateRandomString, findUser, findURLS, getUserURLS, getSingleUserURL } = require("./helpers");
+const { users, urlDatabase, generateRandomString, findUser, findURLS } = require("./helpers");
 
 const app = express();
 const PORT = 8080;
@@ -243,7 +243,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session.userID;
   const user = findUser("id", userID);
-  const urls = findURLS(userID);
 
   if (!user) {
     res.status(401);
@@ -253,11 +252,12 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const shortURL = req.params.shortURL;
 
+  const url =  urlDatabase[shortURL];
+
   const templateVars = {
     shortURL,
-    url: getSingleUserURL(shortURL, getUserURLS(userID, urlDatabase)),
+    url,
     user,
-    urls,
     error: "short URL could not be found, please create a new link"
   };
   
