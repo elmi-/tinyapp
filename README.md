@@ -6,9 +6,11 @@ In addition to basic requirments, Date Created and Visits stretch features were 
 
 ## Final Product
 
-!["screenshot description"](#)
+!["screenshotof URLs page"](https://github.com/elmi-/tinyapp/blob/master/docs/urls.png)
 
-!["screenshot description"](#)
+!["screenshot of URL details page"](https://github.com/elmi-/tinyapp/blob/master/docs/url-details.PNG)
+
+!["screenshot of login page"](https://github.com/elmi-/tinyapp/blob/master/docs/login.PNG)
 
 ## Dependencies
 
