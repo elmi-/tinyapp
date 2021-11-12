@@ -77,6 +77,21 @@ const findUser = (field, search) => {
   return null;
 };
 
+const findURLS = (userID) => {
+  const results = {};
+  const keys = Object.keys(urlDatabase);
+
+  for (const shortURL of keys) {
+    const url = urlDatabase[shortURL];
+    if(url.userID === userID) {
+      results[shortURL] = url;
+      results[shortURL].shortURL = shortURL;
+    }
+  }
+
+  return results;
+};
+
 const generateRandomString = () => {
   const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let randomStr = "";
@@ -99,7 +114,7 @@ const getUserURLS = (userID, urls) => {
 };
 
 const getSingleUserURL = (shortLink, urlDatabase) => {
-  for (const url of urlDatabase) {
+  for (const url of Object.values(urlDatabase)) {
     if (url.shortLink === shortLink) {
       return url;
     }
@@ -216,9 +231,10 @@ app.post("/register", (req, res) => {
 app.get("/urls", (req, res) => {
   const userID = req.session.userID;
   const user = findUser("id", userID);
-  
+  const urls = findURLS(userID);
+
   const templateVars = {
-    urls: getUserURLS(userID, urlDatabase),
+    urls,
     user: user,
   };
   
@@ -226,31 +242,35 @@ app.get("/urls", (req, res) => {
 });
 
 // TODO: edit and fix issue
-// add a new URL and redirect to newly created shortLink
+// add a new URL and redirect to urls_index
 // POST /urls
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const userID = req.session.userID;
+  const longURL = req.body.longURL;
   const user = findUser("id", userID);
-  
+  const urls = findURLS(userID);
+
   urlDatabase[shortURL] = {
-    longURL: req.body.longURL,
-    userID: userID,
+    longURL,
+    userID,
     modifiedDateTime: new Date().toLocaleString(),
   }
 
   const templateVars = {
-    urls: getUserURLS(userID, urlDatabase),
-    user: user,
+    urls,
+    user,
   };
-  console.log(urlDatabase)
-  return res.render("urls_index", templateVars);
+  res.status(200)
+  res.render("urls_index", templateVars);
 });
 
 // renders page for adding new URL
 // GET /urls/new
 app.get("/urls/new", (req, res) => {
   const userID = req.session.userID;
+  const urls = findURLS(userID);
+
   if (!userID) {
     res.status(401);
     res.render("login", { error: "Unauthorized! Please login or register to add new urls!" }); 
@@ -260,8 +280,8 @@ app.get("/urls/new", (req, res) => {
   const user = findUser("id", userID);
 
   const templateVars = {
-    urls: getUserURLS(userID, urlDatabase),
-    user: user,
+    urls,
+    user,
     error: null,
   };
   
@@ -272,13 +292,20 @@ app.get("/urls/new", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const userID = req.session.userID;
   const user = findUser("id", userID);
+  const urls = findURLS(userID);
 
   const templateVars = {
-    urls: getUserURLS(userID, urlDatabase),
-    user: user,
+    urls,
+    user,
     error: "short URL could not be found, please create a new link"
   };
   
+  if (!user) {
+    res.status(401);
+    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" }); 
+    return;  
+  }
+
   if (urlDatabase[req.params.shortURL] === undefined) {
     res.status(400);
     res.render("urls_new", templateVars);
@@ -290,17 +317,47 @@ app.get("/u/:shortURL", (req, res) => {
 
 // POST: delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
 
   const userID = req.session.userID;
   const user = findUser("id", userID);
+  const urls = findURLS(userID);
+
+  if (!user) {
+    res.status(401);
+    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" }); 
+    return;  
+  }
 
   const templateVars = {
-    urls: getUserURLS(userID, urlDatabase),
-    user: user,
+    urls,
+    user,
   };
 
   res.render("urls_index", templateVars);
+});
+
+// GET: shortURL edit page
+app.get("/urls/:shortURL", (req, res) => {
+  const userID = req.session.userID;
+  const user = findUser("id", userID);
+  
+  if (!user) {
+    res.status(401);
+    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" }); 
+    return;  
+  }
+
+  const shortURL = req.params.shortURL;
+
+  const templateVars = {
+    shortURL,
+    url: getSingleUserURL(shortURL, getUserURLS(userID, urlDatabase)),
+    user
+  };
+  
+  res.render("urls_show", templateVars);
 });
 
 // POST: edit shortURL
@@ -309,33 +366,21 @@ app.post("/urls/:shortURL", (req, res) => {
   const longURL = req.body.longURL;
   urlDatabase[shortURL].longURL = longURL;
   const userID = req.session.userID;
-
   const user = findUser("id", userID);
-  
+  const urls = findURLS(userID);
+
   const templateVars = {
-    urls: getUserURLS(userID, urlDatabase),
-    user: user,
+    urls,
+    user,
   };
+
+  console.log(templateVars.urls);
 
   res.render("urls_index", templateVars);
-});
-
-app.get("/urls/:shortURL", (req, res) => {
-  const userID = req.session.userID;
-  const user = findUser("id", userID);
-  const shortLink = req.params.shortURL;
-
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    url: getSingleUserURL(shortLink, getUserURLS(userID, urlDatabase)),
-    user: user
-  };
-  
-  res.render("urls_show", templateVars);
 });
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}`);
   // console.log(urlDatabase)
-  console.log(users);
+  // console.log(users);
 });
