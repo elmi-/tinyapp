@@ -22,6 +22,13 @@ app.use(cookieSession({
 // RENDER index page
 // GET: /
 app.get("/", (req, res) => {
+  const userID = req.session.userID;
+  const user = findUser("id", userID);
+  if (!user) {
+    res.status(401);
+    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" }); 
+    return;
+  }
   res.redirect("/urls");
 });
 
@@ -114,7 +121,7 @@ app.post("/register", (req, res) => {
       };
       
       req.session.userID = id;
-      return res.redirect("login");
+      return res.redirect("/urls");
     });
   });
 
@@ -127,6 +134,12 @@ app.get("/urls", (req, res) => {
   const userID = req.session.userID;
   const user = findUser("id", userID);
   const urls = findURLS(userID);
+
+  if (!user) {
+    res.status(401);
+    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" }); 
+    return;
+  }
 
   const templateVars = {
     urls,

@@ -1,5 +1,5 @@
 <header>
-  <nav class="navbar navbar-expand-md navbar-dark bg-success">
+  <nav class="navbar navbar-expand-md navbar-dark" style="background: -webkit-linear-gradient(left, #0072ff, #8811c5);">
     <a class="navbar-brand" href="/urls">TinyApp</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -16,8 +16,8 @@
         <button type="submit"  class="btn btn-primary">LOGOUT</button>
       </form>
     <% } else { %>
-      <a href="../login">Login</a> | 
-      <a href="../register">Register</a>
+      <a href="../login"><label  class="navbar-brand" style="cursor: pointer;">Login</label></a>
+      <a href="../register"><label  class="navbar-brand" style="cursor: pointer;">Register</label></a>
     <% } %>
   </nav>
 </header>
