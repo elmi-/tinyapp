@@ -16,31 +16,28 @@ const users = {
     email: "a@a.a", 
     password: bcrypt.hashSync("a", 10),
   },
-}
+};
+
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
     userID: "asdf",
     createdDateTime: new Date().toLocaleString(),
-    modifiedDateTime: null,
   }, 
   "9sm5xK": {
     longURL: "http://www.google.com",
     userID: "asdf",
     createdDateTime: new Date().toLocaleString(),
-    modifiedDateTime: null,
   },
   "b00Vn2": {
     longURL: "http://www.lighthouselabs.ca",
     userID: "userRandomID",
     createdDateTime: new Date().toLocaleString(),
-    modifiedDateTime: null,
   }, 
   "99i9Ux": {
     longURL: "http://www.google.com",
     userID: "user2RandomID",
     createdDateTime: new Date().toLocaleString(),
-    modifiedDateTime: null,
   },
 };
 

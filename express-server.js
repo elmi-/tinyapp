@@ -151,7 +151,6 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = {
     longURL,
     userID,
-    modifiedDateTime: new Date().toLocaleString(),
   }
 
   const templateVars = {
