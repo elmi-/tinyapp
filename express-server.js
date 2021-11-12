@@ -49,7 +49,6 @@ app.post("/login", (req, res) => {
   }
 
   const user = findUser("email", email);
-  console.log(user);
   if (!user) {
     res.status(400);
     console.log("email not found")
@@ -115,7 +114,6 @@ app.post("/register", (req, res) => {
       };
       
       req.session.userID = id;
-      console.log(users);
       return res.redirect("login");
     });
   });
@@ -158,7 +156,7 @@ app.post("/urls", (req, res) => {
     user,
   };
   res.status(200)
-  res.render("urls_index", templateVars);
+  res.redirect("/urls");
 });
 
 // renders page for adding new URL
@@ -270,13 +268,9 @@ app.post("/urls/:shortURL", (req, res) => {
     user,
   };
 
-  console.log(templateVars.urls);
-
   res.render("urls_index", templateVars);
 });
 
 app.listen(PORT, () => {
   console.log(`example app listening on port ${PORT}`);
-  // console.log(urlDatabase)
-  // console.log(users);
 });
