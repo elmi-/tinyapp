@@ -160,6 +160,9 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = {
     longURL,
     userID,
+    createdDateTime: new Date().toLocaleString(),
+    visits: 0,
+    uniqueVisits: 0,
   };
 
   res.redirect("/urls");
@@ -192,11 +195,13 @@ app.get("/urls/new", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const userID = req.session.userID;
   const user = findUser("id", userID);
-  const urls = findURLS(userID);
+  const shortURL = req.params.shortURL;
+  const url = urlDatabase[shortURL];
 
   const templateVars = {
-    urls,
+    shortURL,
     user,
+    url,
     error: "short URL could not be found, please create a new link"
   };
   
@@ -205,14 +210,14 @@ app.get("/u/:shortURL", (req, res) => {
     res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" });
     return;
   }
-  const shortURL = req.params.shortURL;
 
-  if (!urlDatabase[shortURL]) {
+  if (!url) {
     res.status(400);
     res.render("urls_new", templateVars);
   }
 
-  const longURL =  urlDatabase[req.params.shortURL].longURL;
+  const longURL =  urlDatabase[shortURL].longURL;
+  url.visits++;
   res.redirect(longURL);
 });
 
