@@ -1,19 +1,19 @@
 const bcrypt = require("bcryptjs");
 
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: bcrypt.hashSync("purple-monkey-dinosaur", 10),
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: bcrypt.hashSync("dishwasher-funk", 10),
   },
   "asdf": {
-    id: "asdf", 
-    email: "a@a.a", 
+    id: "asdf",
+    email: "a@a.a",
     password: bcrypt.hashSync("a", 10),
   },
 };
@@ -23,7 +23,7 @@ const urlDatabase = {
     longURL: "http://www.lighthouselabs.ca",
     userID: "asdf",
     createdDateTime: new Date().toLocaleString(),
-  }, 
+  },
   "9sm5xK": {
     longURL: "http://www.google.com",
     userID: "asdf",
@@ -33,7 +33,7 @@ const urlDatabase = {
     longURL: "http://www.lighthouselabs.ca",
     userID: "userRandomID",
     createdDateTime: new Date().toLocaleString(),
-  }, 
+  },
   "99i9Ux": {
     longURL: "http://www.google.com",
     userID: "user2RandomID",
@@ -54,7 +54,7 @@ const generateRandomString = () => {
 const findUser = (field, search) => {
   for (const id in users) {
     const user = users[id];
-    if(user[field] === search) {
+    if (user[field] === search) {
       return user;
     }
   }
@@ -67,7 +67,7 @@ const findURLS = (userID) => {
 
   for (const shortURL of keys) {
     const url = urlDatabase[shortURL];
-    if(url.userID === userID) {
+    if (url.userID === userID) {
       results[shortURL] = url;
       results[shortURL].shortURL = shortURL;
     }
@@ -79,7 +79,7 @@ const findURLS = (userID) => {
 const getUserURLS = (userID, urls) => {
   let userObj = [];
   for (const key of Object.keys(urls)) {
-    if(userID === urls[key].userID) {
+    if (userID === urls[key].userID) {
       urls[key]["shortLink"] = key;
       userObj.push(urls[key]);
     }

@@ -9,14 +9,14 @@ const { users, urlDatabase, generateRandomString, findUser, findURLS, getUserURL
 const app = express();
 const PORT = 8080;
 
-// #region MIDDLEWARE 
+// #region MIDDLEWARE
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cookieSession({
   name: "session",
   keys: ["key"],
-}))
+}));
 // #endregion
 
 // RENDER index page
@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
   const user = findUser("id", userID);
   if (!user) {
     res.status(401);
-    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" }); 
+    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" });
     return;
   }
   res.redirect("/urls");
@@ -51,29 +51,29 @@ app.post("/login", (req, res) => {
 
   if (!email || !password) {
     res.status(400);
-    res.render("login", { error: "Email and Password cannot be empty!" }); 
+    res.render("login", { error: "Email and Password cannot be empty!" });
     return;
   }
 
   const user = findUser("email", email);
   if (!user) {
     res.status(400);
-    console.log("email not found")
-    res.render("login", { error: "Invalid email/password, please try again" }); 
+    console.log("email not found");
+    res.render("login", { error: "Invalid email/password, please try again" });
     return;
   }
   
   bcrypt.compare(password, user.password, (err, success) => {
-    if(!success){
+    if (!success) {
       res.status(400);
       console.log("wrong password");
-      res.render("login", { error: "Invalid email/password, please try again" }); 
+      res.render("login", { error: "Invalid email/password, please try again" });
       return;
     }
 
     req.session.userID = user.id;
     return res.redirect("/urls");
-  });  
+  });
 });
 
 app.post("/logout", (req, res) => {
@@ -97,23 +97,23 @@ app.get("/register", (req, res) => {
 // POST /register: save users to users data store
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
-  if(!email || !password) {
+  if (!email || !password) {
     res.status(400);
-    res.render("register", { error: "Email and Password cannot be empty!" }); 
+    res.render("register", { error: "Email and Password cannot be empty!" });
     return;
   }
 
   const user = findUser("email", email);
 
-  if(user) {
+  if (user) {
     res.status(400);
-    res.render("register", { error: "Email already registered! Try restting password" }); 
+    res.render("register", { error: "Email already registered! Try restting password" });
     return;
   }
 
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(password, salt, (err, hash) => {
-      const id = generateRandomString();    
+      const id = generateRandomString();
       users[id] = {
         id,
         email,
@@ -137,7 +137,7 @@ app.get("/urls", (req, res) => {
 
   if (!user) {
     res.status(401);
-    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" }); 
+    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" });
     return;
   }
 
@@ -156,19 +156,12 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const userID = req.session.userID;
   const longURL = req.body.longURL;
-  const user = findUser("id", userID);
-  const urls = findURLS(userID);
 
   urlDatabase[shortURL] = {
     longURL,
     userID,
-  }
-
-  const templateVars = {
-    urls,
-    user,
   };
-  res.status(200)
+
   res.redirect("/urls");
 });
 
@@ -180,7 +173,7 @@ app.get("/urls/new", (req, res) => {
 
   if (!userID) {
     res.status(401);
-    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" }); 
+    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" });
     return;
   }
 
@@ -209,11 +202,12 @@ app.get("/u/:shortURL", (req, res) => {
   
   if (!user) {
     res.status(401);
-    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" }); 
-    return;  
+    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" });
+    return;
   }
+  const shortURL = req.params.shortURL;
 
-  if (urlDatabase[req.params.shortURL] === undefined) {
+  if (!urlDatabase[shortURL]) {
     res.status(400);
     res.render("urls_new", templateVars);
   }
@@ -233,8 +227,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
   if (!user) {
     res.status(401);
-    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" }); 
-    return;  
+    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" });
+    return;
   }
 
   const templateVars = {
@@ -249,11 +243,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session.userID;
   const user = findUser("id", userID);
+  const urls = findURLS(userID);
 
   if (!user) {
     res.status(401);
-    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" }); 
-    return;  
+    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" });
+    return;
   }
 
   const shortURL = req.params.shortURL;
@@ -261,9 +256,16 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL,
     url: getSingleUserURL(shortURL, getUserURLS(userID, urlDatabase)),
-    user
+    user,
+    urls,
+    error: "short URL could not be found, please create a new link"
   };
   
+  if (!urlDatabase[shortURL]) {
+    res.status(400);
+    res.render("urls_new", templateVars);
+  }
+
   res.render("urls_show", templateVars);
 });
 

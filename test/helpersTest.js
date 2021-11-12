@@ -1,6 +1,6 @@
 const { assert } = require("chai");
 
-const { findUser, users, findURLS } = require("../helpers.js");
+const { findUser } = require("../helpers.js");
 
 describe("getUserByEmail", function() {
   it("should return a user with valid email", function() {
