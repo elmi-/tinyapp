@@ -13,18 +13,20 @@
         <h5 class="card-title">TinyURL for: <%= url.longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= url.shortLink %>" target="_blank"><%= url.shortLink %></a></p>
       </div>
-    <div class="card-footer text-muted">
+    <div class="card-footer text-muted" style="text-align: initial;">
+      <section style="margin: 1em auto; width: 25em">
       <h5>EDIT</h5>
-      <form class="form-inline" action="/urls/<%= url.shortLink %>" method="POST">
-        <div class="form-group mb-2">
+      <form action="/urls/<%= url.shortLink %>" method="POST">
+        <div class="form-group">
           <label for="longURL">New URL:</label>
-          <input class="form-control" type="text" name="longURL" value="<%= url.longURL %>" style="width: 300px; margin: 1em">
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <input class="form-control" type="text" name="longURL" value="<%= url.longURL %>"> 
         </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
       </form>
-      <form method="POST" action="/urls/<%= url.shortLink %>/delete">
+      <form method="POST" action="/urls/<%= url.shortLink %>/delete" style="text-align: right;">
         <button class="btn btn-danger">DELETE</button>
       </form>
+    </section>
     </div>
   </div>
   <!-- Bootstrap JS -->

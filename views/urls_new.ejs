@@ -12,17 +12,17 @@
 
   <body>
     <%- include('partials/_header') %>
-    <main style="margin: 1em;">
-      <h3>Create TinyURL</h3>
+    <main style="margin: 1em auto; width: 25em">
+      <h3>New TinyURL</h3>
       <% if (error) { %>
         <%- include('partials/_error') %>
       <% } %>
-      <form class="form-inline" action="/urls" method="POST">
-        <div class="form-group mb-2">
+      <form action="/urls" method="POST">
+        <div class="form-group">
           <label for="longURL">Enter a URL:</label>
-          <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <input class="form-control" type="text" name="longURL" placeholder="http://">
         </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </main>
       <!-- Bootstrap JS -->

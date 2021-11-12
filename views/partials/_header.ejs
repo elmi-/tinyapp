@@ -11,7 +11,7 @@
       </div>
     </div>
     <% if(user) { %>
-      <label>Hello, <%= user.email %></label>
+      <label class="navbar-brand">Hello, <%= user.email %></label>
       <form method="POST" action="/logout">
         <button type="submit"  class="btn btn-primary">LOGOUT</button>
       </form>
