@@ -247,7 +247,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // GET: shortURL edit page
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session.userID;
+  const shortURL = req.params.shortURL;
   const user = findUser("id", userID);
+  const urls = findURLS(userID);
 
   if (!user) {
     res.status(401);
@@ -255,7 +257,11 @@ app.get("/urls/:shortURL", (req, res) => {
     return;
   }
 
-  const shortURL = req.params.shortURL;
+  if (!urls[shortURL]) {
+    res.status(401);
+    res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" });
+    return;
+  }
 
   const url =  urlDatabase[shortURL];
 
