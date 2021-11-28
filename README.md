@@ -19,7 +19,6 @@ In addition to basic requirments, Date Created and Visits stretch features were 
 - EJS
 - bcrypt
 - body-parser
-- cookie-parser
 - cookie-session
 
 ## External Resources
