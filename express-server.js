@@ -54,6 +54,12 @@ app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const url = urlDatabase[shortURL];
 
+  if (!user) {
+    res.status(401);
+    res.render("login", { error: "Unauthorized! Please login or register to add new urls!" });
+    return;
+  }
+
   const templateVars = {
     shortURL,
     user,

@@ -51,7 +51,7 @@ router.post("/", (req, res) => {
     uniqueVisits: 0,
   };
 
-  res.redirect("/urls");
+  res.redirect(`/urls/${shortURL}`);
 });
 
 // renders page for adding new URL
@@ -86,7 +86,6 @@ router.get("/new", (req, res) => {
 // POST: delete URL
 router.post("/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
 
   const userID = req.session.userID;
   const user = findUser("id", userID);
@@ -97,6 +96,8 @@ router.post("/:shortURL/delete", (req, res) => {
     res.render("login", { error: "Unauthorized! Please login or register to edit/add new urls!" });
     return;
   }
+
+  delete urlDatabase[shortURL];
 
   const templateVars = {
     urls,
@@ -146,7 +147,6 @@ router.get("/:shortURL", (req, res) => {
 router.post("/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
-  urlDatabase[shortURL].longURL = longURL;
   const userID = req.session.userID;
   const user = findUser("id", userID);
   const urls = findURLS(userID);
@@ -162,6 +162,8 @@ router.post("/:shortURL", (req, res) => {
     res.render("login", { error: "Unauthorized! Please login or register to add new urls!" });
     return;
   }
+
+  urlDatabase[shortURL].longURL = longURL;
 
   const templateVars = {
     urls,
